@@ -26,7 +26,10 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
 #if MEMORY_PACK_INSTALLED
     [MemoryPackable]
 #endif
-    public partial class EnumArray<TEnum, TValue> : IEnumerable<TValue>, IEquatable<EnumArray<TEnum, TValue>>
+    public partial class EnumArray<TEnum, TValue> :
+        IEnumerable<TValue>,
+        IEquatable<EnumArray<TEnum, TValue>>,
+        IReadOnlyDictionary<TEnum, TValue>
         where TEnum : unmanaged, Enum
     {
         /// <summary>
@@ -45,15 +48,17 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
 #if MEMORY_PACK_INSTALLED
         [MemoryPackIgnore]
 #endif
-        public int Length => Entries.Length;
+        int IReadOnlyCollection<KeyValuePair<TEnum, TValue>>.Count => Entries.Length;
 
         /// <summary>
         /// Gets all enum keys used in this array.
         /// </summary>
-#if MEMORY_PACK_INSTALLED
-        [MemoryPackIgnore]
-#endif
-        public IReadOnlyList<TEnum> Keys => _cachedKeys;
+        IEnumerable<TEnum> IReadOnlyDictionary<TEnum, TValue>.Keys => _cachedKeys;
+
+        /// <summary>
+        /// Gets all values used in this array.
+        /// </summary>
+        IEnumerable<TValue> IReadOnlyDictionary<TEnum, TValue>.Values => this;
 
         /// <summary>
         /// Gets all key-value pairs from this array.
@@ -169,14 +174,6 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         }
 
         /// <summary>
-        /// Clears all entries in the array, setting them to their default values.
-        /// </summary>
-        public void Clear()
-        {
-            Array.Clear(Entries, 0, Entries.Length);
-        }
-
-        /// <summary>
         /// Enumerates over (key, value) tuples like a dictionary without allocations.
         /// </summary>
         /// <returns>A struct enumerator that iterates through key-value pairs.</returns>
@@ -188,11 +185,28 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         /// <returns>A struct enumerator for the array of values.</returns>
         public Enumerator<TValue> GetEnumerator() => new(Entries);
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        IEnumerator<TValue> IEnumerable<TValue>.GetEnumerator() => GetEnumerator();
+        private static TEnum[] GetUniqueKeys()
+        {
+            var allValues = (TEnum[])Enum.GetValues(typeof(TEnum));
+            var count = 1;
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+            for (var i = 1; i < allValues.Length; i++)
+            {
+                if (UnsafeEnumConverter<TEnum>.ToInt32(allValues[i])
+                    != UnsafeEnumConverter<TEnum>.ToInt32(allValues[i - 1]))
+                    allValues[count++] = allValues[i];
+            }
+
+            return allValues.Length == 0 ? allValues : allValues[..count];
+        }
+
+        /// <summary>
+        /// Clears all entries in the array, setting them to their default values.
+        /// </summary>
+        public void Clear()
+        {
+            Array.Clear(Entries, 0, Entries.Length);
+        }
 
         /// <summary>
         /// Determines whether the specified EnumArray is equal to the current EnumArray.
@@ -245,21 +259,6 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         public static bool operator !=(EnumArray<TEnum, TValue> left, EnumArray<TEnum, TValue> right) =>
             !Equals(left, right);
 
-        private static TEnum[] GetUniqueKeys()
-        {
-            var allValues = (TEnum[])Enum.GetValues(typeof(TEnum));
-            var count = 1;
-
-            for (var i = 1; i < allValues.Length; i++)
-            {
-                if (UnsafeEnumConverter<TEnum>.ToInt32(allValues[i])
-                    != UnsafeEnumConverter<TEnum>.ToInt32(allValues[i - 1]))
-                    allValues[count++] = allValues[i];
-            }
-
-            return allValues.Length == 0 ? allValues : allValues[..count];
-        }
-
         [Conditional("UNITY_EDITOR")]
         private static void ValidateEnumOrdering()
         {
@@ -274,5 +273,33 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
                                $"{_cachedKeys[i]} has ordinal {ordinal}, expected {i}.");
             }
         }
+
+        bool IReadOnlyDictionary<TEnum, TValue>.ContainsKey(TEnum key) =>
+            UnsafeEnumConverter<TEnum>.ToInt32(key) < Entries.Length;
+
+        bool IReadOnlyDictionary<TEnum, TValue>.TryGetValue(TEnum key, out TValue value)
+        {
+            var index = UnsafeEnumConverter<TEnum>.ToInt32(key);
+            if (index >= Entries.Length)
+            {
+                value = default;
+                return false;
+            }
+
+            value = Entries[index].Value;
+            return true;
+        }
+
+        IEnumerator<KeyValuePair<TEnum, TValue>> IEnumerable<KeyValuePair<TEnum, TValue>>.GetEnumerator()
+        {
+            for (var i = 0; i < _cachedKeys.Length; i++)
+                yield return new KeyValuePair<TEnum, TValue>(_cachedKeys[i], Entries[i].Value);
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        IEnumerator<TValue> IEnumerable<TValue>.GetEnumerator() => GetEnumerator();
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }
