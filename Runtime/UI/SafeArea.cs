@@ -30,44 +30,33 @@ namespace CustomUtils.Runtime.UI
 
             var safeArea = Screen.safeArea;
             var anchorMin = safeArea.position;
-
             var offsetMax = new Vector2(Screen.width, Screen.height) - (safeArea.size + safeArea.position);
 
             if (_horizontalSymmetry)
-                UpdateHorizontalSymmetry(anchorMin, offsetMax, ref safeArea);
+                UpdateHorizontalSymmetry(ref anchorMin, offsetMax, ref safeArea);
 
             if (_verticalSymmetry)
-                UpdateVerticalSymmetry(anchorMin, offsetMax, ref safeArea);
+                UpdateVerticalSymmetry(ref anchorMin, offsetMax, ref safeArea);
 
             UpdateAnchors(anchorMin, safeArea);
         }
 
-        private void UpdateHorizontalSymmetry(Vector2 anchorMin, Vector2 offsetMax, ref Rect safeArea)
+        private void UpdateHorizontalSymmetry(ref Vector2 anchorMin, Vector2 offsetMax, ref Rect safeArea)
         {
-            if (anchorMin.x < offsetMax.x)
-            {
-                anchorMin.x = offsetMax.x;
-                safeArea.size = new Vector2(safeArea.size.x - anchorMin.x, safeArea.size.y);
-            }
-            else
-            {
-                if (anchorMin.x > offsetMax.x)
-                    safeArea.size = new Vector2(safeArea.size.x - anchorMin.x, safeArea.size.y);
-            }
+            if (anchorMin.x >= offsetMax.x)
+                return;
+
+            safeArea.size = new Vector2(safeArea.size.x - (offsetMax.x - anchorMin.x), safeArea.size.y);
+            anchorMin.x = offsetMax.x;
         }
 
-        private void UpdateVerticalSymmetry(Vector2 anchorMin, Vector2 offsetMax, ref Rect safeArea)
+        private void UpdateVerticalSymmetry(ref Vector2 anchorMin, Vector2 offsetMax, ref Rect safeArea)
         {
-            if (anchorMin.y < offsetMax.y)
-            {
-                anchorMin.y = offsetMax.y;
-                safeArea.size = new Vector2(safeArea.size.x, safeArea.size.y - anchorMin.y);
-            }
-            else
-            {
-                if (anchorMin.y > offsetMax.y)
-                    safeArea.size = new Vector2(safeArea.size.x, safeArea.size.y - anchorMin.y);
-            }
+            if (anchorMin.y >= offsetMax.y)
+                return;
+
+            safeArea.size = new Vector2(safeArea.size.x, safeArea.size.y - (offsetMax.y - anchorMin.y));
+            anchorMin.y = offsetMax.y;
         }
 
         private void UpdateAnchors(Vector2 anchorMin, Rect safeArea)
