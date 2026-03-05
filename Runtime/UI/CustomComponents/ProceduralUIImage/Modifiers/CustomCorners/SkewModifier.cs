@@ -1,4 +1,3 @@
-using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Attributes;
 using CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Modifiers.Base;
 using UnityEngine;
@@ -11,20 +10,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Modifiers.Cu
     {
         [field: SerializeField] public float SkewAmount { get; private set; }
 
-        public override void EncodeShaderData(
-            Rect imageRect,
-            float normalizedBorderWidth,
-            float normalizedPixelSize,
-            out Vector2 uv2,
-            out Vector2 uv3)
-        {
-            var normalizedSkew = Mathf.Clamp01(SkewAmount / imageRect.width * 0.5f + 0.5f);
-
-            uv2 = Vector2.zero;
-            uv3 = new Vector2(
-                normalizedSkew.PackAs16BitWith(0f),
-                normalizedBorderWidth.PackAs16BitWith(normalizedPixelSize)
-            );
-        }
+        public override Vector4 CalculateRadius(Rect imageRect) => Vector4.zero;
+        public override float CalculateSkew() => SkewAmount;
     }
 }

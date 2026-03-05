@@ -112,6 +112,13 @@ namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage
         }
 #endif
 
+        private Vector4 FixRadius(Vector4 cornerRadius)
+        {
+            cornerRadius = cornerRadius.ClampToPositive();
+            var scaleFactor = rectTransform.rect.CalculateScaleFactorForBounds(cornerRadius);
+            return cornerRadius * scaleFactor;
+        }
+
         protected override void OnPopulateMesh(VertexHelper toFill)
         {
             base.OnPopulateMesh(toFill);
@@ -128,41 +135,59 @@ namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage
 
         private void EncodeAllInfoIntoVertices(VertexHelper vertexHelper)
         {
-            var imageRect = GetPixelAdjustedRect();
-            var info = CalculateInfo(imageRect);
-
-            ModifierBase.EncodeShaderData(
-                imageRect,
-                info.NormalizedBorderWidth,
-                info.NormalizedPixelSize,
-                out var uv2,
-                out var uv3);
-
+            var info = CalculateInfo();
             var uv1 = new Vector2(info.Width, info.Height);
+            var uv2 = new Vector2(
+                info.NormalizedRadius.x.PackAs16BitWith(info.NormalizedRadius.y),
+                info.NormalizedRadius.z.PackAs16BitWith(info.NormalizedRadius.w)
+            );
+
+            var uv3 = new Vector2(
+                info.NormalizedSkew.PackAs16BitWith(0.5f),
+                info.NormalizedBorderWidth.PackAs16BitWith(info.NormalizedPixelSize)
+            );
+
             var vert = new UIVertex();
             for (var i = 0; i < vertexHelper.currentVertCount; i++)
             {
                 vertexHelper.PopulateUIVertex(ref vert, i);
+
                 vert.position += ((Vector3)vert.uv0 - new Vector3(0.5f, 0.5f)) * info.FallOffDistance;
+
                 vert.uv1 = uv1;
                 vert.uv2 = uv2;
                 vert.uv3 = uv3;
+
                 vertexHelper.SetUIVertex(vert, i);
             }
         }
 
-        private ProceduralImageInfo CalculateInfo(Rect imageRect)
+        private ProceduralImageInfo CalculateInfo()
         {
+            var imageRect = GetPixelAdjustedRect();
+
+            var radius = FixRadius(ModifierBase.CalculateRadius(imageRect));
+
             var minSide = Mathf.Min(imageRect.width, imageRect.height);
+
+            var normalizedRadius = radius / minSide;
             var normalizedBorderWidth = BorderWidth.Value / minSide;
+
             var normalizedPixelSize = Mathf.Clamp01(1f / (Mathf.Max(0.0001f, FalloffDistance.Value) * MaxPixelSize));
 
-            return new ProceduralImageInfo(
+            var skew = ModifierBase.CalculateSkew();
+            var normalizedSkew = Mathf.Clamp01(skew / imageRect.width * 0.5f + 0.5f);
+
+            var info = new ProceduralImageInfo(
                 imageRect.width + FalloffDistance.Value,
                 imageRect.height + FalloffDistance.Value,
                 FalloffDistance.Value,
                 normalizedPixelSize,
-                normalizedBorderWidth);
+                normalizedRadius,
+                normalizedBorderWidth,
+                normalizedSkew);
+
+            return info;
         }
 
         public override Material material
