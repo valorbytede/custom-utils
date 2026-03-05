@@ -37,18 +37,18 @@ namespace CustomUtils.Runtime.UI.Theme
             if (_colorData == colorData)
                 return;
 
-            _colorData = colorData;
-            this.MarkAsDirty();
-
-            UpdateModifier(colorData);
+            ApplyColorData(colorData, ref _colorData);
         }
 
-        private void UpdateModifier(ColorData colorData)
+        private void ApplyColorData(ColorData newColorData, ref ColorData currentColorData)
         {
-            if (!_currentColorModifier || _colorData.ColorType != colorData.ColorType)
-                CreateModifier(colorData.ColorType);
+            if (!_currentColorModifier || currentColorData.ColorType != newColorData.ColorType)
+                CreateModifier(newColorData.ColorType);
 
-            _currentColorModifier.AsNullable()?.UpdateColor(colorData.ColorName);
+            _currentColorModifier.AsNullable()?.UpdateColor(newColorData.ColorName);
+
+            currentColorData = newColorData;
+            this.MarkAsDirty();
         }
 
         private void CreateModifier(ColorType colorType)
@@ -68,12 +68,8 @@ namespace CustomUtils.Runtime.UI.Theme
             // We can't destroy an object during OnValidate
             EditorApplication.delayCall += () =>
             {
-                if (!this || _previousColorData == _colorData)
-                    return;
-
-                UpdateModifier(_colorData);
-                _previousColorData = _colorData;
-                this.MarkAsDirty();
+                if (this)
+                    ApplyColorData(_colorData, ref _previousColorData);
             };
         }
 #endif
