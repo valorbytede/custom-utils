@@ -6,11 +6,11 @@ namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Modifiers.Cu
 {
     [ModifierID("Custom")]
     [DisallowMultipleComponent]
-    public sealed class CustomCornerModifier : ModifierBase
+    public sealed class CustomCornerModifier : RoundedModifierBase
     {
         [field: SerializeField] public CornerRadiiData CornerRadii { get; private set; }
 
-        public override Vector4 CalculateRadius(Rect imageRect)
+        protected override Vector4 CalculateRadius(Rect imageRect)
         {
             var minSide = Mathf.Min(imageRect.width, imageRect.height);
             var maxAllowedRadius = minSide * 0.5f;

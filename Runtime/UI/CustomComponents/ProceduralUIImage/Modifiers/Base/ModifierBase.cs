@@ -6,7 +6,11 @@ namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage.Modifiers.Ba
     [PublicAPI]
     public abstract class ModifierBase : MonoBehaviour
     {
-        public abstract Vector4 CalculateRadius(Rect imageRect);
-        public virtual float CalculateSkew() => 0f;
+        public abstract void EncodeShaderData(
+            Rect imageRect,
+            float normalizedBorderWidth,
+            float normalizedPixelSize,
+            out Vector2 uv2,
+            out Vector2 uv3);
     }
 }
