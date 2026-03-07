@@ -53,6 +53,11 @@ namespace CustomUtils.Runtime.CustomTypes.Collections
         /// <summary>
         /// Gets all enum keys used in this array.
         /// </summary>
+        public TEnum[] Keys => _cachedKeys;
+
+        /// <summary>
+        /// Gets all enum keys used in this array.
+        /// </summary>
         IEnumerable<TEnum> IReadOnlyDictionary<TEnum, TValue>.Keys => _cachedKeys;
 
         /// <summary>
