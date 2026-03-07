@@ -40,6 +40,13 @@ namespace CustomUtils.Runtime.Extensions
             return tokenSource.Token;
         }
 
+        public static void DisposeToken(ref CancellationTokenSource tokenSource)
+        {
+            tokenSource?.Cancel();
+            tokenSource?.Dispose();
+            tokenSource = null;
+        }
+
         /// <summary>
         /// Returns a CancellationToken that will be cancelled when OnDisable is called on the component's GameObject.
         /// </summary>
