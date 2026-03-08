@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using CustomUtils.Runtime.Extensions;
-using CustomUtils.Runtime.Other;
+using CustomUtils.Runtime.Pools.Objects;
 using CustomUtils.Runtime.Storage;
 using CustomUtils.Unsafe;
 using Cysharp.Threading.Tasks;
@@ -32,7 +32,7 @@ namespace CustomUtils.Runtime.Audio
         private readonly List<AliveAudioData<TSoundType>> _aliveAudios = new();
         private readonly List<AliveAudioData<TSoundType>> _audiosToRemove = new();
 
-        private PoolHandler<AudioSource> _soundPool;
+        private Pool<AudioSource> _soundPool;
         private AudioData _currentMusicData;
 
         private const string MusicVolumeKey = "MusicVolumeKey";
@@ -46,8 +46,9 @@ namespace CustomUtils.Runtime.Audio
             await MusicVolume.InitializeAsync(MusicVolumeKey, destroyCancellationToken, defaultMusicVolume);
             await SoundVolume.InitializeAsync(SoundVolumeKey, destroyCancellationToken, defaultSoundVolume);
 
-            _soundPool = new PoolHandler<AudioSource>();
-            _soundPool.Initialize(_soundSourcePrefab, _soundPoolSize, _maxPoolSize, parent: transform);
+            var poolParameters =
+                new PoolParameters<AudioSource>(_soundSourcePrefab, _soundPoolSize, _maxPoolSize, parent: transform);
+            _soundPool = new ComponentPool<AudioSource>(poolParameters);
 
             SoundVolume.SubscribeUntilDestroy(this, static (volume, self) => self.OnSoundVolumeChanged(volume));
             MusicVolume.SubscribeUntilDestroy(this, static (volume, self) => self.OnMusicVolumeChanged(volume));
