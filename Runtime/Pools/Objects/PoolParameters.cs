@@ -39,5 +39,23 @@ namespace CustomUtils.Runtime.Pools.Objects
             Parent = parent;
             ObjectResolver = objectResolver;
         }
+
+        public PoolParameters(PoolConfig<TEntity> poolConfig,
+            Action<TEntity> onCreateCallback = null,
+            Action<TEntity> onGetCallback = null,
+            Action<TEntity> onReleaseCallback = null,
+            Action<TEntity> onDestroyCallback = null,
+            IObjectResolver objectResolver = null)
+        {
+            Prefab = poolConfig.Prefab;
+            DefaultPoolSize = poolConfig.DefaultPoolSize;
+            MaxPoolSize = poolConfig.MaxPoolSize;
+            OnCreateCallback = onCreateCallback;
+            OnGetCallback = onGetCallback;
+            OnReleaseCallback = onReleaseCallback;
+            OnDestroyCallback = onDestroyCallback;
+            Parent = poolConfig.Parent;
+            ObjectResolver = objectResolver;
+        }
     }
 }
