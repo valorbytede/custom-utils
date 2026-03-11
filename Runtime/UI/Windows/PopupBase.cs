@@ -31,6 +31,8 @@ namespace CustomUtils.Runtime.UI.Windows
 
         public override async UniTask ShowAsync()
         {
+            canvasGroup.Show();
+
             await _visibilityHandler.ShowAsync();
 
             _shown.OnNext(Unit.Default);
@@ -40,12 +42,16 @@ namespace CustomUtils.Runtime.UI.Windows
         {
             await _visibilityHandler.HideAsync();
 
+            canvasGroup.Hide();
+
             _hidden.OnNext(Unit.Default);
         }
 
         public override void HideImmediately()
         {
             _visibilityHandler.HideImmediately();
+
+            canvasGroup.Hide();
 
             _hidden.OnNext(Unit.Default);
         }
