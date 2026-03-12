@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 using PrimeTween;
 using UnityEngine;
 
-namespace CustomUtils.Runtime.Animations
+namespace CustomUtils.Runtime.Animations.Anchor
 {
     /// <summary>
     /// Animates the anchored position of a RectTransform based on state.

@@ -6,7 +6,7 @@ using PrimeTween;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace CustomUtils.Runtime.Animations
+namespace CustomUtils.Runtime.Animations.Sprite
 {
     /// <inheritdoc />
     /// <summary>
@@ -20,11 +20,11 @@ namespace CustomUtils.Runtime.Animations
     {
         [SerializeField] private Image _target;
         [SerializeField] private float _duration;
-        [SerializeField] private EnumArray<TState, Sprite> _states;
+        [SerializeField] private EnumArray<TState, UnityEngine.Sprite> _states;
 
         private Tween _currentAnimation;
 
-        private Sprite _targetSprite;
+        private UnityEngine.Sprite _targetSprite;
 
         public Tween PlayAnimation(TState state, bool isInstant)
         {

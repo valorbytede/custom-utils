@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 using PrimeTween;
 using UnityEngine;
 
-namespace CustomUtils.Runtime.Animations
+namespace CustomUtils.Runtime.Animations.Sprite
 {
     /// <summary>
     /// Animates the color of a SpriteRenderer based on state.
