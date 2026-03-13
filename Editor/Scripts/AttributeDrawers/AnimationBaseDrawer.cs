@@ -15,7 +15,11 @@ namespace CustomUtils.Editor.Scripts.AttributeDrawers
 
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
-            var stateType = fieldInfo.FieldType.GenericTypeArguments[0];
+            var animationType = property.propertyType == SerializedPropertyType.ManagedReference
+                ? property.managedReferenceValue?.GetType() ?? fieldInfo.FieldType
+                : fieldInfo.FieldType;
+
+            var stateType = animationType.GetGenericArguments()[0];
             var previewState = (Enum)Enum.GetValues(stateType).GetValue(0);
 
             var rootVisualElement = new VisualElement();
@@ -36,12 +40,19 @@ namespace CustomUtils.Editor.Scripts.AttributeDrawers
 
         private static void InvokePreview(SerializedProperty property, Enum state)
         {
-            var target = property.serializedObject.targetObject;
-            var field = target.GetType().GetField(property.propertyPath,
-                BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            var animation = (property.propertyType == SerializedPropertyType.ManagedReference
+                ? property.managedReferenceValue
+                : GetFieldValue(property)) as IAnimationPreview;
 
-            if (field?.GetValue(target) is IAnimationPreview animation)
-                animation.PreviewAnimation(state);
+            animation?.PreviewAnimation(state);
+        }
+
+        private static object GetFieldValue(SerializedProperty property)
+        {
+            var target = property.serializedObject.targetObject;
+            return target.GetType()
+                .GetField(property.propertyPath, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
+                ?.GetValue(target);
         }
     }
 }
