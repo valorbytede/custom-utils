@@ -20,6 +20,7 @@
         _CropOffset ("Crop Offset", Vector) = (0, 0, 0, 0)
         _CropScale ("Crop Scale", Vector) = (1, 1, 0, 0)
         _HalftoneOpacity ("Halftone Opacity", Range(0, 1)) = 0.2
+        _HalftoneRotation ("Halftone Rotation", Range(0, 360)) = 0
     }
 
     SubShader
@@ -98,6 +99,7 @@
             float4 _CropOffset;
             float4 _CropScale;
             float _HalftoneOpacity;
+            float _HalftoneRotation;
 
             float2 decode2(float value)
             {
@@ -169,7 +171,13 @@
                 }
 
                 #ifdef HALFTONE_OVERLAY
-                float2 halftoneUV = float2(1.0 - IN.texcoord.x, 1.0 - IN.texcoord.y) * _CropScale.xy + _CropOffset.xy;
+                float angle = radians(_HalftoneRotation);
+                float2 centeredUV = IN.texcoord - 0.5;
+                float2 rotatedUV = float2(
+                    centeredUV.x * cos(angle) - centeredUV.y * sin(angle),
+                    centeredUV.x * sin(angle) + centeredUV.y * cos(angle)
+                ) + 0.5;
+                float2 halftoneUV = float2(1.0 - rotatedUV.x, 1.0 - rotatedUV.y) * _CropScale.xy + _CropOffset.xy;
                 fixed4 halftoneTex = tex2D(_HalftoneTex, halftoneUV);
                 halftoneTex.rgb = 1.0 - halftoneTex.rgb;
                 color.rgb = color.rgb * lerp(fixed3(1, 1, 1), halftoneTex.rgb, _HalftoneOpacity);
