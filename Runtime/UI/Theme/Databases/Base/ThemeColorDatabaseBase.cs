@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using CustomUtils.Runtime.CustomTypes.Singletons;
+using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.UI.Theme.ThemeColors;
 using UnityEngine;
 using ZLinq;
@@ -64,8 +65,16 @@ namespace CustomUtils.Runtime.UI.Theme.Databases.Base
 #if UNITY_EDITOR
         protected virtual void OnValidate()
         {
+            var anyChanged = false;
             foreach (var color in Colors)
-                color.EnsureGuid();
+            {
+                var wasChanged = color.TrySetGuid();
+                if (wasChanged)
+                    anyChanged = true;
+            }
+
+            if (anyChanged)
+                this.MarkAsDirty();
         }
 #endif
     }

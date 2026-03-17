@@ -16,7 +16,7 @@ namespace CustomUtils.Runtime.UI.Theme.ThemeColors
 #endif
 
 #if UNITY_EDITOR
-        void EnsureGuid();
+        bool TrySetGuid();
 #endif
     }
 }

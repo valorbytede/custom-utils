@@ -55,10 +55,13 @@ namespace CustomUtils.Runtime.UI.Theme.ThemeColors
 #endif
 
 #if UNITY_EDITOR
-        public void EnsureGuid()
+        public bool TrySetGuid()
         {
-            if (string.IsNullOrEmpty(Guid))
-                Guid = System.Guid.NewGuid().ToString();
+            if (!string.IsNullOrEmpty(Guid))
+                return false;
+
+            Guid = System.Guid.NewGuid().ToString();
+            return true;
         }
 #endif
     }
