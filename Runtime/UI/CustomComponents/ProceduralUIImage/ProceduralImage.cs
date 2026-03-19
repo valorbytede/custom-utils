@@ -68,8 +68,6 @@ namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage
 
         private ResourceReferences ResourceReferences => ResourceReferences.Instance;
 
-        private static readonly int _rectMin = Shader.PropertyToID("_RectMin");
-
         private ModifierBase _modifierBase;
 
         private ModifierBase ModifierBase
@@ -166,20 +164,20 @@ namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage
 #endif
 
             var info = CalculateInfo();
-            var imageRect = GetPixelAdjustedRect();
-
-            var mat = materialForRendering;
-            if (mat)
-                mat.SetVector(_rectMin, new Vector4(imageRect.xMin, imageRect.yMin, 0, 0));
 
             var uv1 = new Vector2(info.Width, info.Height);
+
+            var normalizedRadius = info.NormalizedRadius;
             var uv2 = new Vector2(
-                info.NormalizedRadius.x.PackAs16BitWith(info.NormalizedRadius.y),
-                info.NormalizedRadius.z.PackAs16BitWith(info.NormalizedRadius.w)
+                normalizedRadius.x.PackAs16BitWith(normalizedRadius.y),
+                normalizedRadius.z.PackAs16BitWith(normalizedRadius.w)
             );
 
-            var uv3 = new Vector2(info.NormalizedBorderWidth == 0 ? 1 : Mathf.Clamp01(info.NormalizedBorderWidth),
-                info.PixelSize);
+            var normalizedBorderWidth = info.NormalizedBorderWidth == 0
+                ? 1
+                : Mathf.Clamp01(info.NormalizedBorderWidth);
+
+            var uv3 = new Vector2(normalizedBorderWidth, info.PixelSize);
 
             var vert = new UIVertex();
             for (var i = 0; i < vertexHelper.currentVertCount; i++)
