@@ -1,5 +1,6 @@
 ﻿using System;
 using CustomUtils.Runtime.Attributes;
+using CustomUtils.Runtime.Attributes.ShowIf;
 using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.Other;
 using CustomUtils.Runtime.UI.Theme.ColorModifiers.Base;
@@ -18,8 +19,13 @@ namespace CustomUtils.Runtime.UI.Theme.ColorModifiers.GradientModifier
     internal sealed class ShaderGradientModifier : GenericColorModifierBase<Gradient>
     {
         [SerializeField] private GradientType _gradientType;
-        [SerializeField] private DiamondGradientDirection _gradientDirection;
-        [SerializeField, Range(0, 360)] private float _gradientRotation;
+
+        [SerializeField, ShowIf(nameof(_gradientType), GradientType.Diamond)]
+        private DiamondGradientDirection _gradientDirection;
+
+        [SerializeField,
+         ShowIf(nameof(_gradientType), GradientType.Linear, GradientType.Angular)]
+        private float _gradientRotation;
 
         [SerializeField, Self] private Graphic _graphic;
 
