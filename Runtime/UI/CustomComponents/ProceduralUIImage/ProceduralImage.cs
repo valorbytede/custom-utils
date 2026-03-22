@@ -12,7 +12,7 @@ namespace CustomUtils.Runtime.UI.CustomComponents.ProceduralUIImage
     [PublicAPI]
     [ExecuteAlways]
     [AddComponentMenu("UI/Procedural Image")]
-    public class ProceduralImage : MaskableGraphic
+    public class ProceduralImage : RawImage
     {
         [field: SerializeField] public bool UseCustomMaterial { get; set; }
         [field: SerializeField] public Vector2 CornerOffsetTopLeft { get; set; }

@@ -1,10 +1,11 @@
-﻿Shader "UI/Gradient/Diamond"
+﻿Shader "UI/Gradient"
 {
     Properties
     {
         _MainTex ("Sprite Texture", 2D) = "white" {}
         _GradientTex ("Gradient Texture", 2D) = "white" {}
         _Direction ("Direction", Int) = 0
+        _Rotation ("Rotation", Range(0, 360)) = 0
         _Color ("Tint", Color) = (1,1,1,1)
 
         _HalftoneTex ("Halftone Texture", 2D) = "white" {}
@@ -58,10 +59,12 @@
             #pragma fragment Fragment
             #pragma target 2.0
 
+            #pragma multi_compile_local _ GRADIENT_LINEAR GRADIENT_DIAMOND GRADIENT_RADIAL GRADIENT_ANGULAR
+            #pragma multi_compile_local _ HALFTONE_ON
             #pragma multi_compile_local _ UNITY_UI_CLIP_RECT
             #pragma multi_compile_local _ UNITY_UI_ALPHACLIP
 
-            #include "DiamondPass.hlsl"
+            #include "GradientPass.hlsl"
             ENDHLSL
         }
     }

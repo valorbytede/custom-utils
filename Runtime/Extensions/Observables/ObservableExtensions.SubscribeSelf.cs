@@ -1,5 +1,4 @@
 ﻿using System;
-using JetBrains.Annotations;
 using R3;
 
 namespace CustomUtils.Runtime.Extensions.Observables

@@ -51,7 +51,7 @@
             #pragma multi_compile_local _ UNITY_UI_CLIP_RECT
             #pragma multi_compile_local _ UNITY_UI_ALPHACLIP
 
-            #include "ProceduralImage.hlsl"
+            #include "ProceduralImagePass.hlsl"
             ENDHLSL
         }
     }

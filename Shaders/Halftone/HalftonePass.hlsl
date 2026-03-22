@@ -16,7 +16,7 @@ float4 _DotColor;
 float  _PatternRotation;
 CBUFFER_END
 
-#include "HalftoneUtils.hlsl"
+include "Packages/com.firsttry.customutils/Shaders/Halftone/HalftoneUtils.hlsl"
 
 int _UIVertexColorAlwaysGammaSpace;
 
@@ -39,7 +39,7 @@ Varyings Vertex(Attributes input)
     Varyings output;
     output.positionHCS = TransformObjectToHClip(input.positionOS.xyz);
 
-    #if UNITY_COLORSPACE_GAMMA == 0
+    #ifndef UNITY_COLORSPACE_GAMMA
     if (_UIVertexColorAlwaysGammaSpace)
         input.color.rgb = SRGBToLinear(input.color.rgb);
     #endif

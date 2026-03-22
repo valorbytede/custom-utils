@@ -1,46 +1,40 @@
 ﻿using CustomUtils.Runtime.Attributes;
 using CustomUtils.Runtime.Extensions;
-using CustomUtils.Runtime.Extensions.Observables;
 using CustomUtils.Runtime.UI.GradientHelpers.Base;
+using CustomUtils.Runtime.UI.Theme.ColorModifiers.Base;
 using CustomUtils.Runtime.UI.Theme.Databases;
 using CustomUtils.Runtime.UI.Theme.Databases.Base;
-using R3;
 using UnityEngine;
 
-namespace CustomUtils.Runtime.UI.Theme.ColorModifiers.Base
+namespace CustomUtils.Runtime.UI.Theme.ColorModifiers.GradientModifier
 {
     internal abstract class GradientModifierBase<TGradientEffect, TComponent> : GenericColorModifierBase<Gradient>
         where TGradientEffect : GradientEffectBase<TComponent>, new()
         where TComponent : Component
     {
-        [field: SerializeField]
-        internal SerializableReactiveProperty<GradientDirection> CurrentGradientDirection { get; private set; } =
-            new(GradientDirection.LeftToRight);
+        [SerializeField] private GradientDirection _gradientDirection = GradientDirection.TopToBottom;
 
-        [SerializeField, InspectorReadOnly] private TComponent _component;
+        [SerializeField, Self] private TComponent _component;
 
         protected override IThemeDatabase<Gradient> ThemeDatabase => GradientColorDatabase.Instance;
 
         private readonly TGradientEffect _gradientEffectBase = new();
 
-        protected override void Awake()
-        {
-            base.Awake();
-
-            _component = _component.AsNullable() ?? GetComponent<TComponent>();
-            this.MarkAsDirty();
-
-            CurrentGradientDirection.SubscribeUntilDestroy(this, static self => self.UpdateColor(self.currentColorName));
-        }
-
         protected override void OnUpdateColor(Gradient gradient)
         {
-            _gradientEffectBase.ApplyGradient(_component, gradient, CurrentGradientDirection.Value);
+            _gradientEffectBase.ApplyGradient(_component, gradient, _gradientDirection);
         }
 
         public override void Dispose()
         {
             _gradientEffectBase.ClearGradient(_component);
         }
+
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            UpdateColor(currentColorName);
+        }
+#endif
     }
 }
