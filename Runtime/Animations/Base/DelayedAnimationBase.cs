@@ -10,6 +10,7 @@ namespace CustomUtils.Runtime.Animations.Base
     {
         [SerializeField] protected TTarget target;
         [SerializeField] private DelayedAnimationSettingsBase<TState, TContent> _animationSettings;
+        [SerializeField] private bool _skipWhenInstant;
 
         private Tween _currentAnimation;
 
@@ -17,6 +18,9 @@ namespace CustomUtils.Runtime.Animations.Base
 
         public Tween PlayAnimation(TState state, bool isInstant)
         {
+            if (isInstant && _skipWhenInstant)
+                return default;
+
             targetSource = _animationSettings.States[state];
 
             if (isInstant)
