@@ -79,6 +79,8 @@ namespace CustomUtils.Editor.Scripts.UI.CustomComponents.ProceduralUIImage
             if (_useCustomMaterial.boolValue)
                 _editorStateControls.PropertyField(m_Material);
 
+            _editorStateControls.PropertyField(m_Maskable);
+
             RaycastControlsGUI();
 
             EditorGUILayout.Space();
