@@ -50,6 +50,10 @@ namespace CustomUtils.Runtime.Storage
                 var loaded = await _provider.LoadAsync<TProperty>(_key, token);
                 if (loaded != null)
                     Property.Value = loaded;
+
+                var hasKey = await _provider.HasKeyAsync(_key, token);
+                if (hasKey)
+                    Property.Value = await _provider.LoadAsync<TProperty>(_key, token);
             }
             catch (Exception e)
             {
