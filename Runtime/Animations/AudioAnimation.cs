@@ -1,23 +1,23 @@
 ﻿using System;
 using CustomUtils.Runtime.Animations.Base;
 using JetBrains.Annotations;
-using UnityEngine.UI;
+using UnityEngine;
 
-namespace CustomUtils.Runtime.Animations.Sprite
+namespace CustomUtils.Runtime.Animations
 {
     /// <inheritdoc />
     /// <summary>
-    /// Swaps the sprite of an Image component based on state, with optional delay.
+    /// Plays an AudioClip on an AudioSource component based on state, with optional delay.
     /// </summary>
     /// <typeparam name="TState">The enum type representing animation states.</typeparam>
     [PublicAPI]
     [Serializable]
-    public sealed class SpriteSwapAnimation<TState> : DelayedAnimationBase<Image, UnityEngine.Sprite, TState>
+    public sealed class AudioAnimation<TState> : DelayedAnimationBase<AudioSource, AudioClip, TState>
         where TState : unmanaged, Enum
     {
         protected override void UpdateState()
         {
-            target.sprite = targetSource;
+            target.PlayOneShot(targetSource);
         }
     }
 }
