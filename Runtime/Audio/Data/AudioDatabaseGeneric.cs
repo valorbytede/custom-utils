@@ -2,7 +2,7 @@
 using CustomUtils.Runtime.CustomTypes.Collections;
 using UnityEngine;
 
-namespace CustomUtils.Runtime.Audio
+namespace CustomUtils.Runtime.Audio.Data
 {
     /// <inheritdoc />
     /// <summary>

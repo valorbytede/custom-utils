@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace CustomUtils.Runtime.Audio
+namespace CustomUtils.Runtime.Audio.Data
 {
     [Serializable]
     public sealed class SoundContainer

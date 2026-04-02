@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
-namespace CustomUtils.Runtime.Audio
+namespace CustomUtils.Runtime.Audio.Data
 {
     [PublicAPI]
     [CreateAssetMenu(menuName = nameof(AudioConfig), fileName = nameof(AudioConfig))]

@@ -2,7 +2,7 @@
 using CustomUtils.Unsafe;
 using UnityEngine;
 
-namespace CustomUtils.Runtime.Audio
+namespace CustomUtils.Runtime.Audio.Data
 {
     internal readonly struct AliveAudioData<TEnum> : IEquatable<AliveAudioData<TEnum>> where TEnum : unmanaged, Enum
     {

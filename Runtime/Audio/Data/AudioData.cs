@@ -2,7 +2,7 @@
 using CustomUtils.Runtime.CustomTypes.Randoms;
 using UnityEngine;
 
-namespace CustomUtils.Runtime.Audio
+namespace CustomUtils.Runtime.Audio.Data
 {
     /// <summary>
     /// Contains audio clip and randomization settings for sound playback
