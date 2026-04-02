@@ -27,7 +27,7 @@ namespace CustomUtils.Runtime.Audio
 
         private Pool<AudioSource> _soundPool;
 
-        public virtual void Init()
+        public virtual void Initialize()
         {
             _soundPool = new ComponentPool<AudioSource>(_soundPoolConfig);
         }
