@@ -54,22 +54,22 @@ namespace CustomUtils.Runtime.UI.Windows.Registries
             }
         }
 
-        internal void Open<TConcreteWindow>() where TConcreteWindow : TWindow
+        internal async UniTask<TWindow> Open<TConcreteWindow>() where TConcreteWindow : TWindow
         {
             if (!TryGet<TConcreteWindow>(out var window))
-                return;
+                return null;
 
-            OpenWindow(window);
+            return await OpenWindow(window);
         }
 
-        internal void Open<TConcreteWindow, TParameters>(TParameters parameters)
+        internal async UniTask<TWindow> Open<TConcreteWindow, TParameters>(TParameters parameters)
             where TConcreteWindow : TWindow, IParameterizedWindow<TParameters>
         {
             if (!TryGet<TConcreteWindow>(out var window))
-                return;
+                return null;
 
             ((IParameterizedWindow<TParameters>)window).SetParameters(parameters);
-            OpenWindow(window);
+            return await OpenWindow(window);
         }
 
         internal void HideCurrent()
@@ -82,7 +82,7 @@ namespace CustomUtils.Runtime.UI.Windows.Registries
         }
 
         protected abstract void OnRegistered(TWindow window);
-        protected abstract UniTaskVoid OpenWindow(TWindow window);
+        protected abstract UniTask<TWindow> OpenWindow(TWindow window);
 
         private bool TryGet<TConcreteWindow>(out TWindow window) where TConcreteWindow : TWindow
         {

@@ -40,7 +40,7 @@ namespace CustomUtils.Runtime.UI.Windows.Registries
                 .RegisterTo(_token);
         }
 
-        protected override async UniTaskVoid OpenWindow(SharedPopupBase sharedPopupBase)
+        protected override async UniTask<SharedPopupBase> OpenWindow(SharedPopupBase sharedPopupBase)
         {
             if (currentWindow && !sharedPopupBase.IsInFrontOf(currentWindow))
                 sharedPopupBase.transform.SetAsLastSibling();
@@ -57,6 +57,7 @@ namespace CustomUtils.Runtime.UI.Windows.Registries
 
             currentWindow = sharedPopupBase;
             CurrentPopupType = sharedPopupBase.GetType();
+            return sharedPopupBase;
         }
 
         internal void HideAll()

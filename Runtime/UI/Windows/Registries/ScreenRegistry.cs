@@ -35,15 +35,15 @@ namespace CustomUtils.Runtime.UI.Windows.Registries
             sharedScreenBase.HideImmediately();
         }
 
-        protected override UniTaskVoid OpenWindow(SharedScreenBase sharedScreenBase)
+        protected override async UniTask<SharedScreenBase> OpenWindow(SharedScreenBase sharedScreenBase)
         {
             if (currentWindow)
-                currentWindow.HideAsync();
+                await currentWindow.HideAsync();
 
             currentWindow = sharedScreenBase;
             _currentScreenType.Value = sharedScreenBase.GetType();
-            sharedScreenBase.ShowAsync();
-            return default;
+            await sharedScreenBase.ShowAsync();
+            return sharedScreenBase;
         }
     }
 }
