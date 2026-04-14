@@ -24,6 +24,7 @@ CBUFFER_END
 
 #include "Packages/com.firsttry.customutils/Shaders/Halftone/HalftoneUtils.hlsl"
 
+float4 _ClipRect;
 int _UIVertexColorAlwaysGammaSpace;
 
 struct Attributes
@@ -36,6 +37,7 @@ struct Attributes
 struct Varyings
 {
     float4 positionHCS : SV_POSITION;
+    float4 worldPosition : TEXCOORD1;
     float2 uv : TEXCOORD0;
     float4 color : COLOR;
 };
@@ -49,6 +51,8 @@ Varyings Vertex(Attributes input)
     if (_UIVertexColorAlwaysGammaSpace)
         input.color.rgb = SRGBToLinear(input.color.rgb);
     #endif
+
+    output.worldPosition = input.positionOS;
 
     output.uv = input.uv;
     output.color = input.color;
@@ -83,7 +87,7 @@ float4 Fragment(Varyings input) : SV_Target
     half4 color = gradientColor * mainTex * input.color * _Color;
 
     #ifdef UNITY_UI_CLIP_RECT
-    color.a *= UnityGet2DClipping(input.positionHCS.xy, _ClipRect);
+    color.a *= UnityGet2DClipping(input.worldPosition.xy, _ClipRect);
     #endif
 
     #ifdef UNITY_UI_ALPHACLIP

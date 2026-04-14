@@ -63,4 +63,10 @@ float2 IntersectSegments(float2 p0, float2 p1, float2 p2, float2 p3)
         Cross2D(originDelta, dirA) * invCross);
 }
 
+float UnityGet2DClipping(float2 position, float4 clipRect)
+{
+    float2 inside = step(clipRect.xy, position) * step(position, clipRect.zw);
+    return inside.x * inside.y;
+}
+
 #endif
