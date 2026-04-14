@@ -60,6 +60,7 @@ namespace CustomUtils.Runtime.UI.Theme.ColorModifiers.GradientModifier
             _material = new Material(ResourceReferences.Instance.GradientMaterial);
             _graphic.material = _material;
 
+            UpdateColor(currentColorName);
             this.MarkAsDirty();
         }
 
