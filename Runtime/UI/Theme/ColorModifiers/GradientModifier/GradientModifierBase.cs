@@ -1,4 +1,5 @@
 ﻿using CustomUtils.Runtime.Attributes;
+using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.UI.GradientHelpers.Base;
 using CustomUtils.Runtime.UI.Theme.ColorModifiers.Base;
 using CustomUtils.Runtime.UI.Theme.Databases;
@@ -21,11 +22,13 @@ namespace CustomUtils.Runtime.UI.Theme.ColorModifiers.GradientModifier
 
         protected override void OnUpdateColor(Gradient gradient)
         {
+            _component = _component.AsNullable() ?? GetComponent<TComponent>();
             _gradientEffectBase.ApplyGradient(_component, gradient, _gradientDirection);
         }
 
         public override void Dispose()
         {
+            _component = _component.AsNullable() ?? GetComponent<TComponent>();
             _gradientEffectBase.ClearGradient(_component);
         }
 
