@@ -15,7 +15,7 @@ namespace CustomUtils.Runtime.UI.Windows.Windows.Base
     [EditorBrowsable(EditorBrowsableState.Never)]
     public abstract class SharedPopupBase : WindowBase
     {
-        [field: SerializeField] internal bool IsSingle { get; private set; } = true;
+        [field: SerializeField] internal bool IsSingle { get; private set; }
 
         [SerializeField, Self] private VisibilityHandler _visibilityHandler;
 
