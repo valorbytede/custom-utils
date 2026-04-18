@@ -14,7 +14,7 @@ namespace CustomUtils.Runtime.Storage.Providers
     /// Recommended for Android builds where PlayerPrefs may be unreliable.
     /// </summary>
     [PublicAPI]
-    public sealed class BinaryFileProvider : BaseStorageProvider<byte[]>
+    public sealed class BinaryFileProvider : StorageProviderBase<byte[]>
     {
         private readonly IBytesSerializer _serializer;
         private readonly string _saveDirectory;

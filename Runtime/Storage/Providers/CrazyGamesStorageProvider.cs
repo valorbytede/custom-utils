@@ -14,7 +14,7 @@ namespace CustomUtils.Runtime.Storage.Providers
     /// Stores data using the CrazyGames SDK. Requires the <c>CRAZY_GAMES</c> scripting define symbol.
     /// </summary>
     [PublicAPI]
-    public sealed class CrazyGamesStorageProvider : BaseCloudStorageProvider<string>
+    public sealed class CrazyGamesStorageProvider : CloudStorageProviderBase<string>
     {
         private readonly IStringSerializer _serializer;
 

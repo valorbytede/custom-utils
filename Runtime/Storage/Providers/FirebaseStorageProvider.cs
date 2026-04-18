@@ -17,7 +17,7 @@ namespace CustomUtils.Runtime.Storage.Providers
     /// Data is scoped per user under <c>users/{userId}</c>.
     /// </summary>
     [PublicAPI]
-    public sealed class FirebaseStorageProvider : BaseCloudStorageProvider<byte[]>
+    public sealed class FirebaseStorageProvider : CloudStorageProviderBase<byte[]>
     {
         private const long MaxDownloadSize = 5 * 1024 * 1024;
 

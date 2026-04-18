@@ -5,12 +5,12 @@ using Cysharp.Threading.Tasks;
 
 namespace CustomUtils.Runtime.Storage.Base
 {
-    public abstract class BaseCloudStorageProvider<TCached> : BaseStorageProvider<TCached>, ICloudStorageProvider
+    public abstract class CloudStorageProviderBase<TCached> : StorageProviderBase<TCached>, ICloudStorageProvider
     {
         private readonly Dictionary<string, CancellationTokenSource> _pendingTokens = new();
         private readonly TimeSpan _debounceDelay;
 
-        protected BaseCloudStorageProvider(TimeSpan debounceDelay)
+        protected CloudStorageProviderBase(TimeSpan debounceDelay)
         {
             _debounceDelay = debounceDelay;
         }

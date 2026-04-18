@@ -16,7 +16,7 @@ namespace CustomUtils.Runtime.Storage.Providers
     /// Stores data using Unity Cloud Save. Requires Unity Gaming Services to be initialized before use.
     /// </summary>
     [PublicAPI]
-    public sealed class CloudSaveStorageProvider : BaseCloudStorageProvider<string>
+    public sealed class CloudSaveStorageProvider : CloudStorageProviderBase<string>
     {
         private readonly IStringSerializer _serializer;
         private readonly Dictionary<string, object> _saveBuffer = new(capacity: 1);

@@ -5,7 +5,7 @@ using Cysharp.Threading.Tasks;
 
 namespace CustomUtils.Runtime.Storage.Base
 {
-    public abstract class BaseStorageProvider<TCached> : IStorageProvider
+    public abstract class StorageProviderBase<TCached> : IStorageProvider
     {
         private readonly Dictionary<string, TCached> _cache = new();
 

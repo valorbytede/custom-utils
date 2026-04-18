@@ -12,7 +12,7 @@ namespace CustomUtils.Runtime.Storage.Providers
     /// Stores data using Unity's <see cref="T:UnityEngine.PlayerPrefs">UnityEngine.PlayerPrefs</see>. Suitable for editor and mobile platforms.
     /// </summary>
     [PublicAPI]
-    public sealed class PlayerPrefsProvider : BaseStorageProvider<string>
+    public sealed class PlayerPrefsProvider : StorageProviderBase<string>
     {
         private readonly IStringSerializer _serializer;
 
