@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using CustomUtils.Runtime.Storage.Base;
 using Cysharp.Threading.Tasks;
 using JetBrains.Annotations;
@@ -43,7 +44,7 @@ namespace CustomUtils.Runtime.Storage.Providers
 
             var localData = await _localProvider.LoadAsync<T>(key, token);
 
-            if (!_autoMigrate || localData == null)
+            if (!_autoMigrate || EqualityComparer<T>.Default.Equals(localData, default))
                 return localData;
 
             if (await _cloudProvider.TrySaveAsync(key, localData))
