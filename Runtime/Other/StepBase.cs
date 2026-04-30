@@ -32,7 +32,7 @@ namespace CustomUtils.Runtime.Other
             try
             {
                 var loadingText = await _loadingKey.GetLocalizationAsync(token).SuppressAsync(token);
-                _stepCompletedSubject.OnNext(loadingText);
+                _stepCompletedSubject.OnNext(loadingText.Data);
 
                 var isSuccess = await ExecuteInternalAsync(token);
 
