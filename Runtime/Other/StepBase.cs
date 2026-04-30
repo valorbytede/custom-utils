@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.LocalizationProviders;
 using Cysharp.Threading.Tasks;
 using JetBrains.Annotations;
@@ -30,7 +31,7 @@ namespace CustomUtils.Runtime.Other
         {
             try
             {
-                var loadingText = await _loadingKey.GetLocalizationAsync(token);
+                var loadingText = await _loadingKey.GetLocalizationAsync(token).SuppressAsync(token);
                 _stepCompletedSubject.OnNext(loadingText);
 
                 var isSuccess = await ExecuteInternalAsync(token);
