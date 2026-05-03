@@ -14,7 +14,7 @@ namespace CustomUtils.Editor.Scripts.UI.Theme
     internal sealed class ThemeColorNamePropertyDrawer : PropertyDrawer
     {
         private const int DefaultRowCount = 1;
-        private const int ExpandedRowCount = 3;
+        private const int ExpandedRowCount = 2;
 
         private EditorStateControls _editorStateControls;
 
@@ -46,10 +46,11 @@ namespace CustomUtils.Editor.Scripts.UI.Theme
                 return;
             }
 
-            var (colorName, _) = _editorStateControls.Dropdown(property, colorNames, colorGuids, GetRowRect(position, 0));
+            var colorTypeRect = GetRowRect(position, 0);
+            var (colorName, _) = _editorStateControls.Dropdown(property, colorNames, colorGuids, colorTypeRect);
 
-            DrawColorPreview(colorName, colorType, GetRowRect(position, 1));
-            DrawDatabasePingButton(colorType, GetRowRect(position, 2));
+            var previewRect = GetRowRect(position, 1);
+            DrawColorPreview(colorName, colorType, previewRect);
         }
 
         private void DrawColorPreview(string colorName, ColorType colorType, Rect rect)
@@ -68,27 +69,6 @@ namespace CustomUtils.Editor.Scripts.UI.Theme
                         EditorVisualControls.GradientField(rect, "Preview", gradient);
                     break;
             }
-        }
-
-        private void DrawDatabasePingButton(ColorType colorType, Rect rect)
-        {
-            if (!GUI.Button(rect, "Select Database"))
-                return;
-
-            Object database = colorType switch
-            {
-                ColorType.Solid => SolidColorDatabase.Instance,
-                ColorType.VertexGraphicGradient
-                    or ColorType.TextGradient
-                    or ColorType.ShaderGraphicGradient => GradientColorDatabase.Instance,
-                _ => null
-            };
-
-            if (!database)
-                return;
-
-            EditorGUIUtility.PingObject(database);
-            Selection.activeObject = database;
         }
 
         private bool TryGetColorNamesForType(

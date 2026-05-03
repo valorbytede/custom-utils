@@ -8,6 +8,7 @@
         internal const string AnalyzeUnusedAssemblyReferencesMenuName = UtilsMenuName + "Analyze Unused Assembly References";
         internal const string DirtyMakerMenuName = UtilsMenuName + "Dirty Maker";
 
+        internal const string ThemeDatabasesMenuName = RootMenuName + "Theme";
         internal const string LocalizationMenuName = SettingsMenuName + "Localization";
         internal const string CustomMenuSettingsMenuName = SettingsMenuName + "Custom Menu";
         internal const string LoggerSettingsMenuName = SettingsMenuName + "Logger";
