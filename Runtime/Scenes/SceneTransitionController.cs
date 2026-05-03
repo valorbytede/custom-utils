@@ -5,10 +5,12 @@ using Eflatun.SceneReference;
 using JetBrains.Annotations;
 using UnityEngine.ResourceManagement.ResourceProviders;
 using UnityEngine.SceneManagement;
+using UnityEngine.Scripting;
 
 namespace CustomUtils.Runtime.Scenes
 {
     [PublicAPI]
+    [Preserve]
     public sealed class SceneTransitionController : ISceneTransitionController
     {
         public bool IsLoading { get; private set; }
@@ -19,6 +21,7 @@ namespace CustomUtils.Runtime.Scenes
 
         private readonly ISceneLoader _sceneLoader;
 
+        [Preserve]
         public SceneTransitionController(ISceneLoader sceneLoader)
         {
             _sceneLoader = sceneLoader;

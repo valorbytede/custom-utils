@@ -4,11 +4,13 @@ using Cysharp.Threading.Tasks;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.Scripting;
 using UnityEngine.UI;
 
 namespace CustomUtils.Runtime.AddressableSystem
 {
     [PublicAPI]
+    [Preserve]
     public sealed class AddressablesLoader : IAddressablesLoader
     {
         public async UniTask<T> LoadAsync<T>(AssetReference assetReference, CancellationToken token)

@@ -8,10 +8,12 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.ResourceProviders;
 using UnityEngine.SceneManagement;
+using UnityEngine.Scripting;
 
 namespace CustomUtils.Runtime.Scenes
 {
     [PublicAPI]
+    [Preserve]
     public sealed class SceneLoader : ISceneLoader
     {
         private SceneInstance _sceneInstance;
