@@ -21,18 +21,18 @@ namespace CustomUtils.Runtime.Other
         /// <summary>
         /// Gets an observable that emits when the step completes execution.
         /// </summary>
-        public Observable<string> OnStepCompletedObservable => _stepCompletedSubject;
+        public Observable<string> OnStepStarted => _stepStarted;
 
         protected const string InitializationStepsPath = "Initialization Steps/";
 
-        private readonly Subject<string> _stepCompletedSubject = new();
+        private readonly Subject<string> _stepStarted = new();
 
         public virtual async UniTask<bool> ExecuteAsync(CancellationToken token)
         {
             try
             {
                 var loadingText = await _loadingKey.GetLocalizationAsync(token).SuppressAsync(token);
-                _stepCompletedSubject.OnNext(loadingText.Data);
+                _stepStarted.OnNext(loadingText.Data);
 
                 var isSuccess = await ExecuteInternalAsync(token);
 
