@@ -6,7 +6,7 @@ namespace CustomUtils.Runtime.Animations.Base
     /// A single-value enum used as a state type for animations that don't require multiple states.
     /// </summary>
     [PublicAPI]
-    public enum Unit
+    public enum SingleState
     {
         Default = 0
     }
