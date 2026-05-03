@@ -14,13 +14,6 @@
         _ColorMask ("Color Mask", Float) = 15
 
         [Toggle(UNITY_UI_ALPHACLIP)] _UseUIAlphaClip ("Use Alpha Clip", Float) = 0
-
-        [Toggle(HALFTONE_OVERLAY)] _HalftoneOverlay ("Halftone Overlay", Float) = 0
-        _HalftoneTex ("Halftone Texture", 2D) = "white" {}
-        _CropOffset ("Crop Offset", Vector) = (0, 0, 0, 0)
-        _CropScale ("Crop Scale", Vector) = (1, 1, 0, 0)
-        _HalftoneOpacity ("Halftone Opacity", Range(0, 1)) = 0.2
-        _HalftoneRotation ("Halftone Rotation", Range(0, 360)) = 0
     }
 
     SubShader
@@ -52,6 +45,7 @@
 
         Pass
         {
+            Name "Default"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
@@ -60,9 +54,8 @@
             #include "UnityCG.cginc"
             #include "UnityUI.cginc"
 
-            #pragma multi_compile __ UNITY_UI_CLIP_RECT
-            #pragma multi_compile __ UNITY_UI_ALPHACLIP
-            #pragma multi_compile __ HALFTONE_OVERLAY
+            #pragma multi_compile_local _ UNITY_UI_CLIP_RECT
+            #pragma multi_compile_local _ UNITY_UI_ALPHACLIP
 
             struct appdata_t
             {
@@ -77,12 +70,12 @@
 
             struct v2f
             {
-                float4 vertex : POSITION;
+                float4 vertex : SV_POSITION;
                 fixed4 color : COLOR;
                 float4 worldPosition : TEXCOORD0;
                 float4 radius : TEXCOORD1;
                 float2 texcoord : TEXCOORD2;
-                float2 wh : TEXCOORD3;
+                float2 size : TEXCOORD3;
                 float lineWeight : TEXCOORD4;
                 float pixelWorldScale : TEXCOORD5;
                 UNITY_VERTEX_OUTPUT_STEREO
@@ -95,93 +88,78 @@
             float4 _MainTex_ST;
             int _UIVertexColorAlwaysGammaSpace;
 
-            sampler2D _HalftoneTex;
-            float4 _CropOffset;
-            float4 _CropScale;
-            float _HalftoneOpacity;
-            float _HalftoneRotation;
+            static const float Max16BitValue = 65535.0f;
+            static const float MaxPixelWorldScale = 2048.0f;
+            static const float MinPixelWorldScale = 1 / MaxPixelWorldScale;
 
             float2 decode2(float value)
             {
-                float2 kEncodeMul = float2(1.0, 65535.0f);
-                float kEncodeBit = 1.0 / 65535.0f;
-                float2 enc = kEncodeMul * value;
+                float2 encodeMultiplier = float2(1, Max16BitValue);
+                float encodeBit = 1 / Max16BitValue;
+                float2 enc = encodeMultiplier * value;
                 enc = frac(enc);
-                enc.x -= enc.y * kEncodeBit;
+                enc.x -= enc.y * encodeBit;
                 return enc;
             }
 
-            v2f vert(appdata_t IN)
+            v2f vert(appdata_t input)
             {
                 v2f OUT;
-                UNITY_SETUP_INSTANCE_ID(IN);
+
+                UNITY_SETUP_INSTANCE_ID(input);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(OUT);
-                OUT.worldPosition = IN.vertex;
+
+                OUT.worldPosition = input.vertex;
                 OUT.vertex = UnityObjectToClipPos(OUT.worldPosition);
 
-                OUT.wh = IN.uv1;
-                OUT.texcoord = TRANSFORM_TEX(IN.uv0, _MainTex);
+                OUT.size = input.uv1;
+                OUT.texcoord = TRANSFORM_TEX(input.uv0, _MainTex);
 
-                float minside = min(OUT.wh.x, OUT.wh.y);
+                float minside = min(OUT.size.x, OUT.size.y);
 
-                OUT.lineWeight = IN.uv3.x * minside;
-
-                OUT.radius = float4(decode2(IN.uv2.x), decode2(IN.uv2.y)) * minside;
-
-                OUT.pixelWorldScale = clamp(IN.uv3.y, 1 / 2048, 2048);
+                OUT.lineWeight = input.uv3.x * minside;
+                OUT.radius = float4(decode2(input.uv2.x), decode2(input.uv2.y)) * minside;
+                OUT.pixelWorldScale = clamp(input.uv3.y, MinPixelWorldScale, MaxPixelWorldScale);
 
                 if (_UIVertexColorAlwaysGammaSpace && !IsGammaSpace())
-                    IN.color.rgb = UIGammaToLinear(IN.color.rgb);
+                    input.color.rgb = UIGammaToLinear(input.color.rgb);
 
-                OUT.color = IN.color * _Color;
+                OUT.color = input.color * _Color;
                 return OUT;
             }
 
-            half visible(float2 pos, float4 r, float2 wh)
+            float visible(float2 position, float2 halfSize, float4 radii)
             {
-                half4 p = half4(pos, wh.x - pos.x, wh.y - pos.y);
-                half v = min(min(min(p.x, p.y), p.z), p.w);
-                bool4 b = bool4(all(p.xw < r[0]), all(p.zw < r[1]), all(p.zy < r[2]), all(p.xy < r[3]));
-                half4 vis = r - half4(length(p.xw - r[0]), length(p.zw - r[1]), length(p.zy - r[2]),
-                                      length(p.xy - r[3]));
-                half4 foo = min(b * max(vis, 0), v) + (1 - b) * v;
-                v = any(b) * min(min(min(foo.x, foo.y), foo.z), foo.w) + v * (1 - any(b));
-                return v;
+                float cornerRadius = position.x > 0.0f
+                                         ? position.y > 0.0f ? radii.y : radii.z
+                                         : position.y > 0.0f ? radii.x : radii.w;
+
+                float2 distanceToCornerCenter = abs(position) - halfSize + cornerRadius;
+                float distanceToRoundedCorner = length(max(distanceToCornerCenter, 0.0f));
+                float distanceToStraightEdge = min(max(distanceToCornerCenter.x, distanceToCornerCenter.y), 0.0f);
+                return cornerRadius - distanceToRoundedCorner - distanceToStraightEdge;
             }
 
-            fixed4 frag(v2f IN) : SV_Target
+            fixed4 frag(v2f input) : SV_Target
             {
-                half4 color = (tex2D(_MainTex, IN.texcoord) + _TextureSampleAdd) * IN.color;
+                half4 color = (tex2D(_MainTex, input.texcoord) + _TextureSampleAdd) * input.color;
 
                 #ifdef UNITY_UI_CLIP_RECT
-                color.a *= UnityGet2DClipping(IN.worldPosition.xy, _ClipRect);
+                color.a *= UnityGet2DClipping(input.worldPosition.xy, _ClipRect);
                 #endif
 
                 #ifdef UNITY_UI_ALPHACLIP
-                clip (color.a - 0.001);
+                clip(color.a - 0.001f);
                 #endif
 
-                half v = visible(IN.texcoord * IN.wh, IN.radius, IN.wh);
-                float l = (IN.lineWeight + 1 / IN.pixelWorldScale) / 2;
-                color.a *= saturate((l - distance(v, l)) * IN.pixelWorldScale);
+                float2 halfSize = input.size * 0.5f;
+                float2 centeredPosition = input.texcoord * input.size - halfSize;
+                float sdf = visible(centeredPosition, halfSize, input.radius);
+                float borderCenter = (input.lineWeight + 1 / input.pixelWorldScale) * 0.5f;
+                color.a *= saturate((borderCenter - distance(sdf, borderCenter)) * input.pixelWorldScale);
 
                 if (color.a <= 0)
-                {
                     discard;
-                }
-
-                #ifdef HALFTONE_OVERLAY
-                float angle = radians(_HalftoneRotation);
-                float2 centeredUV = IN.texcoord - 0.5;
-                float2 rotatedUV = float2(
-                    centeredUV.x * cos(angle) - centeredUV.y * sin(angle),
-                    centeredUV.x * sin(angle) + centeredUV.y * cos(angle)
-                ) + 0.5;
-                float2 halftoneUV = float2(1.0 - rotatedUV.x, 1.0 - rotatedUV.y) * _CropScale.xy + _CropOffset.xy;
-                fixed4 halftoneTex = tex2D(_HalftoneTex, halftoneUV);
-                halftoneTex.rgb = 1.0 - halftoneTex.rgb;
-                color.rgb = color.rgb * lerp(fixed3(1, 1, 1), halftoneTex.rgb, _HalftoneOpacity);
-                #endif
 
                 return color;
             }
