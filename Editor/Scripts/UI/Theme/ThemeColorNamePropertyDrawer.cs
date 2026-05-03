@@ -13,6 +13,9 @@ namespace CustomUtils.Editor.Scripts.UI.Theme
     [CustomPropertyDrawer(typeof(ThemeColorNameAttribute))]
     internal sealed class ThemeColorNamePropertyDrawer : PropertyDrawer
     {
+        private const int DefaultRowCount = 1;
+        private const int ExpandedRowCount = 3;
+
         private EditorStateControls _editorStateControls;
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
@@ -22,9 +25,11 @@ namespace CustomUtils.Editor.Scripts.UI.Theme
 
             var colorType = property.GetPropertyFromParent<ColorType>(nameof(ColorData.ColorType));
 
-            return colorType != ColorType.None && !string.IsNullOrEmpty(property.stringValue)
-                ? EditorGUIUtility.singleLineHeight * 2 + EditorGUIUtility.standardVerticalSpacing
-                : EditorGUIUtility.singleLineHeight;
+            var rowCount = colorType != ColorType.None && !string.IsNullOrEmpty(property.stringValue)
+                ? ExpandedRowCount
+                : DefaultRowCount;
+
+            return (EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing) * rowCount;
         }
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
@@ -41,34 +46,49 @@ namespace CustomUtils.Editor.Scripts.UI.Theme
                 return;
             }
 
-            var (colorName, _) = _editorStateControls.Dropdown(property, colorNames, colorGuids, position);
+            var (colorName, _) = _editorStateControls.Dropdown(property, colorNames, colorGuids, GetRowRect(position, 0));
 
-            DrawColorPreview(colorName, colorType, position);
+            DrawColorPreview(colorName, colorType, GetRowRect(position, 1));
+            DrawDatabasePingButton(colorType, GetRowRect(position, 2));
         }
 
-        private void DrawColorPreview(string colorName, ColorType colorType, Rect position)
+        private void DrawColorPreview(string colorName, ColorType colorType, Rect rect)
         {
-            var previewRect = new Rect(
-                position.x,
-                position.y + EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing,
-                position.width,
-                EditorGUIUtility.singleLineHeight
-            );
-
             switch (colorType)
             {
                 case ColorType.Solid:
                     if (SolidColorDatabase.Instance.TryGetColorByName(colorName, out var previewColor))
-                        EditorVisualControls.ColorField(previewRect, "Preview", previewColor);
+                        EditorVisualControls.ColorField(rect, "Preview", previewColor);
                     break;
 
                 case ColorType.VertexGraphicGradient
                     or ColorType.TextGradient
                     or ColorType.ShaderGraphicGradient:
                     if (GradientColorDatabase.Instance.TryGetColorByName(colorName, out var gradient))
-                        EditorVisualControls.GradientField(previewRect, "Preview", gradient);
+                        EditorVisualControls.GradientField(rect, "Preview", gradient);
                     break;
             }
+        }
+
+        private void DrawDatabasePingButton(ColorType colorType, Rect rect)
+        {
+            if (!GUI.Button(rect, "Select Database"))
+                return;
+
+            Object database = colorType switch
+            {
+                ColorType.Solid => SolidColorDatabase.Instance,
+                ColorType.VertexGraphicGradient
+                    or ColorType.TextGradient
+                    or ColorType.ShaderGraphicGradient => GradientColorDatabase.Instance,
+                _ => null
+            };
+
+            if (!database)
+                return;
+
+            EditorGUIUtility.PingObject(database);
+            Selection.activeObject = database;
         }
 
         private bool TryGetColorNamesForType(
@@ -91,5 +111,12 @@ namespace CustomUtils.Editor.Scripts.UI.Theme
 
             return !colorNames.IsNullOrEmpty() && !colorGuids.IsNullOrEmpty();
         }
+
+        private static Rect GetRowRect(Rect position, int rowIndex) => new(
+            position.x,
+            position.y + (EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing) * rowIndex,
+            position.width,
+            EditorGUIUtility.singleLineHeight
+        );
     }
 }
