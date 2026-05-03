@@ -55,9 +55,9 @@ namespace CustomUtils.Runtime.UI.Theme.ThemeColors
 #endif
 
 #if UNITY_EDITOR
-        public bool TrySetGuid()
+        public bool TrySetGuid(bool forceRegenerate)
         {
-            if (!string.IsNullOrEmpty(Guid))
+            if (!forceRegenerate && !string.IsNullOrEmpty(Guid))
                 return false;
 
             Guid = System.Guid.NewGuid().ToString();

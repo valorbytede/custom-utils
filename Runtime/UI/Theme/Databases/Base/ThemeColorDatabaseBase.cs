@@ -15,6 +15,8 @@ namespace CustomUtils.Runtime.UI.Theme.Databases.Base
     {
         [field: SerializeField] public List<TTheme> Colors { get; protected set; }
 
+        private readonly HashSet<string> _seenGuids = new();
+
         public List<string> GetColorNames()
         {
             if (Colors == null || Colors.Count == 0)
@@ -66,11 +68,17 @@ namespace CustomUtils.Runtime.UI.Theme.Databases.Base
         protected virtual void OnValidate()
         {
             var anyChanged = false;
+            _seenGuids.Clear();
+
             foreach (var color in Colors)
             {
-                var wasChanged = color.TrySetGuid();
-                if (wasChanged)
-                    anyChanged = true;
+                var isDuplicate = !_seenGuids.Add(color.Guid);
+                var wasChanged = color.TrySetGuid(forceRegenerate: isDuplicate);
+                if (!wasChanged)
+                    continue;
+
+                anyChanged = true;
+                _seenGuids.Add(color.Guid);
             }
 
             if (anyChanged)
