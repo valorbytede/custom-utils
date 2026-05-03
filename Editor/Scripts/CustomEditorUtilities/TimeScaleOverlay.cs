@@ -8,18 +8,21 @@ namespace CustomUtils.Editor.Scripts.CustomEditorUtilities
     internal abstract class MainToolbarSliderExample
     {
         private const float MinTimeScale = 0f;
-        private const float MaxTimeScale = 100f;
+        private const float MaxTimeScale = 10f;
 
         private const string TimeScaleToolbarPath = "TimeScale";
         private const string TimeScaleDisplayName = "Time Scale";
 
-        private const string OverrideButtonDisplayName = "Override";
         private const string OverrideButtonTooltip = "If true overrides any timeScale change to specified in slider";
+        private const string ResetTooltip = "Reset Time Scale to 1";
+
+        private const string ResetIconName = "Refresh";
+        private const string OverrideIconName = "LockIcon-On";
 
         private static float _currentTimeScale;
         private static bool _isOverride;
 
-        private static MainToolbarLabel _timeScaleLabel;
+        private static MainToolbarSlider _mainToolbarElement;
 
         [MainToolbarElement(TimeScaleToolbarPath, defaultDockPosition = MainToolbarDockPosition.Middle)]
         internal static IEnumerable<MainToolbarElement> TimeSlider()
@@ -31,9 +34,14 @@ namespace CustomUtils.Editor.Scripts.CustomEditorUtilities
                 Time.timeScale,
                 MinTimeScale,
                 MaxTimeScale,
-                OnSliderValueChanged);
+                SetTimeScale);
 
-            var buttonContent = new MainToolbarContent(OverrideButtonDisplayName, OverrideButtonTooltip);
+            var resetIcon = EditorGUIUtility.IconContent(ResetIconName).image as Texture2D;
+            var resetContent = new MainToolbarContent(resetIcon, ResetTooltip);
+            yield return new MainToolbarButton(resetContent, ResetTimeScale);
+
+            var overrideIcon = EditorGUIUtility.IconContent(OverrideIconName).image as Texture2D;
+            var buttonContent = new MainToolbarContent(overrideIcon, OverrideButtonTooltip);
             yield return new MainToolbarToggle(buttonContent, false, ToggleOverride);
         }
 
@@ -53,7 +61,13 @@ namespace CustomUtils.Editor.Scripts.CustomEditorUtilities
             Time.timeScale = _currentTimeScale;
         }
 
-        private static void OnSliderValueChanged(float newValue)
+        private static void ResetTimeScale()
+        {
+            SetTimeScale(1f);
+            MainToolbar.Refresh(TimeScaleToolbarPath);
+        }
+
+        private static void SetTimeScale(float newValue)
         {
             Time.timeScale = newValue;
             _currentTimeScale = newValue;
