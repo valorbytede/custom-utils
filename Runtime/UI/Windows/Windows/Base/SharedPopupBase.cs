@@ -31,7 +31,7 @@ namespace CustomUtils.Runtime.UI.Windows.Windows.Base
         public override void BaseInitialize()
         {
             CloseButton.AsNullable()?.OnClickAsObservable()
-                .SubscribeUntilDestroy(this, static self => self.HideAsync(self.destroyCancellationToken).Forget());
+                .SubscribeAwaitExclusive(this, static async (self, token) => await self.HideAsync(token));
         }
 
         public override async UniTask ShowAsync(CancellationToken token)
