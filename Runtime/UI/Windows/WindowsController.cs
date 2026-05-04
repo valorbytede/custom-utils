@@ -45,7 +45,7 @@ namespace CustomUtils.Runtime.UI.Windows
             _addressablesLoader = addressablesLoader;
         }
 
-        public async UniTask InitializeAsync(CancellationToken token)
+        public async UniTask InitializeAsync(CancellationToken token = default)
         {
             var sourceWithDestroy = token.CreateLinkedTokenSourceWithDestroy(this);
 
@@ -72,7 +72,8 @@ namespace CustomUtils.Runtime.UI.Windows
             }
         }
 
-        public async UniTask<SharedScreenBase> OpenScreen<TScreen>(CancellationToken token) where TScreen : ScreenBase
+        public async UniTask<SharedScreenBase> OpenScreen<TScreen>(CancellationToken token = default)
+            where TScreen : ScreenBase
         {
             _popupRegistry.HideAll();
             return await _screenRegistry.Open<TScreen>(token);
@@ -80,14 +81,15 @@ namespace CustomUtils.Runtime.UI.Windows
 
         public async UniTask<SharedScreenBase> OpenScreen<TParameterizedScreen, TParameters>(
             TParameters parameters,
-            CancellationToken token)
+            CancellationToken token = default)
             where TParameterizedScreen : ParameterizedScreenBase<TParameters>
         {
             _popupRegistry.HideAll();
             return await _screenRegistry.Open<TParameterizedScreen, TParameters>(parameters, token);
         }
 
-        public async UniTask<SharedPopupBase> OpenPopup<TPopup>(CancellationToken token) where TPopup : PopupBase
+        public async UniTask<SharedPopupBase> OpenPopup<TPopup>(CancellationToken token = default)
+            where TPopup : PopupBase
             => await _popupRegistry.Open<TPopup>(token);
 
         public async UniTask<SharedPopupBase> OpenPopup<TParameterizedPopup, TParameters>(
