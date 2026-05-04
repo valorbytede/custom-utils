@@ -40,12 +40,14 @@ namespace CustomUtils.Runtime.UI.Windows.Registries
                 .RegisterTo(_token);
         }
 
-        protected override async UniTask<SharedPopupBase> OpenWindow(SharedPopupBase sharedPopupBase)
+        protected override async UniTask<SharedPopupBase> OpenWindow(
+            SharedPopupBase sharedPopupBase,
+            CancellationToken token)
         {
             if (currentWindow && !sharedPopupBase.IsInFrontOf(currentWindow))
                 sharedPopupBase.transform.SetAsLastSibling();
 
-            await sharedPopupBase.ShowAsync();
+            await sharedPopupBase.ShowAsync(token);
 
             if (currentWindow)
             {
@@ -79,7 +81,7 @@ namespace CustomUtils.Runtime.UI.Windows.Registries
 
             currentWindow = previousPopup;
             if (needShow)
-                previousPopup.ShowAsync().Forget();
+                previousPopup.ShowAsync(previousPopup.destroyCancellationToken).Forget();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using CustomUtils.Runtime.Animations.Base;
 using Cysharp.Threading.Tasks;
 using JetBrains.Annotations;
@@ -16,9 +17,11 @@ namespace CustomUtils.Runtime.UI.Windows
 
         private List<UniTask> _cachedTasks = new();
 
-        public virtual async UniTask ShowAsync() => await CreateVisibilitySequence(VisibilityState.Visible);
+        public virtual async UniTask ShowAsync(CancellationToken token)
+            => await CreateVisibilitySequence(VisibilityState.Visible, token);
 
-        public virtual async UniTask HideAsync() => await CreateVisibilitySequence(VisibilityState.Hidden);
+        public virtual async UniTask HideAsync(CancellationToken token)
+            => await CreateVisibilitySequence(VisibilityState.Hidden, token);
 
         public void HideImmediately()
         {
@@ -26,7 +29,7 @@ namespace CustomUtils.Runtime.UI.Windows
                 visibilityAnimation.PlayAnimation(VisibilityState.Hidden, true);
         }
 
-        private async UniTask CreateVisibilitySequence(VisibilityState visibilityState)
+        private async UniTask CreateVisibilitySequence(VisibilityState visibilityState, CancellationToken token)
         {
             _cachedTasks.Clear();
 
@@ -36,7 +39,7 @@ namespace CustomUtils.Runtime.UI.Windows
                 // It uses a pooled TweenCoroutineEnumerator instead of allocating on each call.
                 _cachedTasks.Add(visibilityAnimation.PlayAnimation(visibilityState)
                     .ToYieldInstruction()
-                    .ToUniTask());
+                    .ToUniTask(cancellationToken: token));
             }
 
             await UniTask.WhenAll(_cachedTasks);

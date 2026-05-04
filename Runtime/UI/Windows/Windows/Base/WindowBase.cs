@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Threading;
 using CustomUtils.Runtime.Attributes;
 using CustomUtils.Runtime.Extensions;
 using Cysharp.Threading.Tasks;
@@ -20,8 +21,8 @@ namespace CustomUtils.Runtime.UI.Windows.Windows.Base
 
         public virtual void Initialize() { }
 
-        public abstract UniTask ShowAsync();
-        public abstract UniTask HideAsync();
+        public abstract UniTask ShowAsync(CancellationToken token);
+        public abstract UniTask HideAsync(CancellationToken token);
 
         public virtual void HideImmediately()
         {

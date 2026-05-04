@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using CustomUtils.Runtime.AddressableSystem;
 using CustomUtils.Runtime.UI.Windows.Windows.Base;
 using Cysharp.Threading.Tasks;
@@ -35,14 +36,16 @@ namespace CustomUtils.Runtime.UI.Windows.Registries
             sharedScreenBase.HideImmediately();
         }
 
-        protected override async UniTask<SharedScreenBase> OpenWindow(SharedScreenBase sharedScreenBase)
+        protected override async UniTask<SharedScreenBase> OpenWindow(
+            SharedScreenBase sharedScreenBase,
+            CancellationToken token)
         {
             if (currentWindow)
-                await currentWindow.HideAsync();
+                await currentWindow.HideAsync(token);
 
             currentWindow = sharedScreenBase;
             _currentScreenType.Value = sharedScreenBase.GetType();
-            await sharedScreenBase.ShowAsync();
+            await sharedScreenBase.ShowAsync(token);
             return sharedScreenBase;
         }
     }

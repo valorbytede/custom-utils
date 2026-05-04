@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Threading;
 using CustomUtils.Runtime.Extensions;
 using Cysharp.Threading.Tasks;
 using JetBrains.Annotations;
@@ -12,13 +13,13 @@ namespace CustomUtils.Runtime.UI.Windows.Windows.Base
     {
         [field: SerializeField] internal bool InitialWindow { get; private set; }
 
-        public override UniTask ShowAsync()
+        public override UniTask ShowAsync(CancellationToken token)
         {
             canvasGroup.Show();
             return UniTask.CompletedTask;
         }
 
-        public override UniTask HideAsync()
+        public override UniTask HideAsync(CancellationToken token)
         {
             canvasGroup.Hide();
             return UniTask.CompletedTask;

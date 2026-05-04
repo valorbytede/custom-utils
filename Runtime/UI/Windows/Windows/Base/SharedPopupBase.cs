@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Threading;
 using CustomUtils.Runtime.Attributes;
 using CustomUtils.Runtime.Extensions;
 using CustomUtils.Runtime.Extensions.Observables;
@@ -30,21 +31,21 @@ namespace CustomUtils.Runtime.UI.Windows.Windows.Base
         public override void BaseInitialize()
         {
             CloseButton.AsNullable()?.OnClickAsObservable()
-                .SubscribeUntilDestroy(this, static self => self.HideAsync().Forget());
+                .SubscribeUntilDestroy(this, static self => self.HideAsync(self.destroyCancellationToken).Forget());
         }
 
-        public override async UniTask ShowAsync()
+        public override async UniTask ShowAsync(CancellationToken token)
         {
             canvasGroup.Show();
 
-            await _visibilityHandler.ShowAsync();
+            await _visibilityHandler.ShowAsync(token);
 
             _shown.OnNext(Unit.Default);
         }
 
-        public override async UniTask HideAsync()
+        public override async UniTask HideAsync(CancellationToken token)
         {
-            await _visibilityHandler.HideAsync();
+            await _visibilityHandler.HideAsync(token);
 
             canvasGroup.Hide();
 

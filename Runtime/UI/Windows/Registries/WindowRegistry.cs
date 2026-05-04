@@ -41,7 +41,8 @@ namespace CustomUtils.Runtime.UI.Windows.Registries
 
                 if (!created.TryGetComponent<TWindow>(out var window))
                 {
-                    Debug.LogError("[WindowRegistry::LoadAsync] Loaded GameObject does not contain " +
+                    Debug.LogError($"[{nameof(WindowRegistry<TWindow>)}::{nameof(LoadAsync)}]" +
+                                   " Loaded GameObject does not contain " +
                                    $"{typeof(TWindow).Name} component: {created.name}");
                     continue;
                 }
@@ -54,22 +55,24 @@ namespace CustomUtils.Runtime.UI.Windows.Registries
             }
         }
 
-        internal async UniTask<TWindow> Open<TConcreteWindow>() where TConcreteWindow : TWindow
+        internal async UniTask<TWindow> Open<TConcreteWindow>(CancellationToken token) where TConcreteWindow : TWindow
         {
             if (!TryGet<TConcreteWindow>(out var window))
                 return null;
 
-            return await OpenWindow(window);
+            return await OpenWindow(window, token);
         }
 
-        internal async UniTask<TWindow> Open<TConcreteWindow, TParameters>(TParameters parameters)
+        internal async UniTask<TWindow> Open<TConcreteWindow, TParameters>(
+            TParameters parameters,
+            CancellationToken token)
             where TConcreteWindow : TWindow, IParameterizedWindow<TParameters>
         {
             if (!TryGet<TConcreteWindow>(out var window))
                 return null;
 
             ((IParameterizedWindow<TParameters>)window).SetParameters(parameters);
-            return await OpenWindow(window);
+            return await OpenWindow(window, token);
         }
 
         internal void HideCurrent()
@@ -82,14 +85,15 @@ namespace CustomUtils.Runtime.UI.Windows.Registries
         }
 
         protected abstract void OnRegistered(TWindow window);
-        protected abstract UniTask<TWindow> OpenWindow(TWindow window);
+        protected abstract UniTask<TWindow> OpenWindow(TWindow window, CancellationToken token);
 
         private bool TryGet<TConcreteWindow>(out TWindow window) where TConcreteWindow : TWindow
         {
             if (_windows.TryGetValue(typeof(TConcreteWindow), out window))
                 return true;
 
-            Debug.LogError($"[WindowRegistry] No window registered for type: {typeof(TConcreteWindow)}");
+            Debug.LogError($"[{nameof(WindowRegistry<TWindow>)}::{nameof(TryGet)}]" +
+                           $" No window registered for type: {typeof(TConcreteWindow)}");
             return false;
         }
     }
